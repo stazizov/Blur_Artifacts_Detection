@@ -7,14 +7,16 @@ from __future__ import (
     unicode_literals
 )
 
+
+import cv2
 from math import atan2, pi
 from sys import argv
 
 import numpy as np
-from scipy.ndimage import imread
+from matplotlib.pyplot import imread
 from skimage.feature import canny
 
-from cpbd.octave import sobel
+from .octave import sobel
 
 
 # threshold to characterize blocks as edge/non-edge blocks
@@ -33,7 +35,7 @@ WIDTH_JNB = np.concatenate([5*np.ones(51), 3*np.ones(205)])
 def compute(image):
     # type: (numpy.ndarray) -> float
     """Compute the sharpness metric for the given data."""
-
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # convert the image to double for further processing
     image = image.astype(np.float64)
 

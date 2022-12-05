@@ -5,6 +5,22 @@ from torch.utils import model_zoo
 from torch import nn
 from torch.nn import functional as F
 from collections import OrderedDict
+from dataclasses import dataclass
+import os
+import tqdm
+
+
+@dataclass 
+class config:
+    dataset_directory = ""
+    best_weights_path = "/content/best_model.pth"
+    train_directory = os.path.join(dataset_directory, "Train_Data")
+    test_directory = os.path.join(dataset_directory, "Test_Data")
+    image_height = 128
+    image_width = 128
+    batch_size = 8
+    num_epochs = 200
+    lr = 0.001
 
 
 class CPDBModel:
@@ -290,3 +306,144 @@ def seresnet18(num_classes=1000, in_chans=3, pretrained=True, **kwargs):
     
     model.reset_classifier(1)
     return model
+
+
+class Trainer:
+    def __init__(
+        self,
+        model,
+        train_dataset,
+        test_dataset,
+        num_epochs,
+        batch_size,
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    ) -> None:
+
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        self.device = device
+        
+        # model 
+        self.model = model
+        self.sigmoid = nn.Sigmoid()
+        self.optimizer = torch.optim.AdamW(
+            self.model.parameters(), 
+            lr = config.lr, 
+        )
+        self.criterion = nn.BCELoss()
+        
+        # for saving checkpoint
+        self.best_accuracy = 0
+        
+
+        self.train_dataLoader = torch.utils.data.DataLoader(
+            train_dataset, 
+            batch_size = batch_size, 
+            collate_fn = self.collate_fn,
+        )
+
+        self.test_dataLoader = torch.utils.data.DataLoader(
+            test_dataset,
+            batch_size = config.batch_size,
+            collate_fn = self.collate_fn,
+        )
+        
+    
+    def collate_fn(self, batch):
+        images, labels = [], []
+        for image, label in batch:
+            image = torch.tensor(image / 255)
+            image = image.permute((2, 0, 1)).float()
+            if image.shape == torch.Size([3, 224, 224]):
+                images.append(image)
+
+                label = torch.tensor([label]).float()
+                labels.append(label)
+
+        images = torch.stack(images).to(self.device)
+        labels = torch.stack(labels).to(self.device)
+        return images, labels
+    
+    def measure_accuracy(self, outputs, labels, thrershold=0.5):
+        outputs = (outputs > thrershold).float()
+        num_correct = (outputs == labels).sum() / len(labels)
+        return num_correct
+        
+    def train_epoch(self, current_epoch):
+        # switch the model to train mode
+        self.model.train()
+        
+        pbar = tqdm.notebook.tqdm(
+            enumerate(self.train_dataLoader), 
+            total = len(self.train_dataLoader),
+            desc = f"Epoch(train) {current_epoch} "
+        )
+        
+        running_loss = 0
+        running_accuracy = 0
+        
+        for index, (images, labels) in pbar:
+            outputs = self.model(images)
+            loss = self.criterion(
+                self.sigmoid(outputs),
+                labels,
+            )
+            
+            running_accuracy += self.measure_accuracy(outputs, labels).item()
+            running_loss += loss.item()
+            
+            pbar.set_postfix(
+                dict(
+                    accuracy = round(running_accuracy/(index+1), 5),
+                    loss = round(running_loss/(index+1), 5)
+                )
+            )
+            loss.backward()
+            self.optimizer.step()
+            self.optimizer.zero_grad()
+
+    
+    def test_epoch(self, current_epoch):
+        # switch model to evaluation mode
+        self.model.eval()
+        
+        pbar = tqdm.notebook.tqdm(
+            enumerate(self.test_dataLoader), 
+            total = len(self.test_dataLoader),
+            desc = f"Epoch(test) {current_epoch} "
+        )
+        
+        running_loss = 0
+        running_accuracy = 0
+        
+        for index, (images, labels) in pbar:
+            with torch.no_grad():
+                outputs = self.model(images)
+
+            running_loss += self.criterion(
+                self.sigmoid(outputs),
+                labels,
+            ).item()
+
+            running_accuracy += self.measure_accuracy(outputs, labels).item()
+
+            pbar.set_postfix(
+                dict(
+                    accuracy = round(running_accuracy/(index + 1), 5),
+                    loss = round(running_loss/(index + 1), 5)
+                )
+            )
+        
+        if running_accuracy / (index + 1) > self.best_accuracy:
+            self.best_accuracy = running_accuracy / (index + 1)
+            torch.save(self.model.state_dict(), config.best_weights_path)
+            print(f"saved model weights at: {config.best_weights_path}")
+
+        return outputs, labels
+    
+    def start(self):
+        print(f"Start training using {self.device}")
+        self.model.to(self.device)
+        for epoch in range(self.num_epochs):
+            self.train_epoch(epoch)
+            self.test_epoch(epoch)

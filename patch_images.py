@@ -75,7 +75,7 @@ def bboxes2mask(crop_path: str, bboxes: list):
     
     return img, mask_crop
 
-def crops2patches(window_size=32, threshold=0.5):
+def crops2patches(window_size=32, threshold=0.01):
     try:
         os.mkdir(f"patches_{window_size}")
     except OSError as error:
@@ -83,7 +83,7 @@ def crops2patches(window_size=32, threshold=0.5):
 
     iterator = 0
     labels = {}
-    denominator = window_size * window_size
+    threshold = int(window_size * window_size * threshold)
     data = read_bboxes_json()
 
     for crop_path, bboxes in data.items():
@@ -91,7 +91,7 @@ def crops2patches(window_size=32, threshold=0.5):
     
         for x, y, patch in sliding_window(img, window_size, (window_size, window_size)):
             label = 0
-            percentile = mask[y: y + window_size, x: x + window_size].sum() / denominator
+            percentile = mask[y: y + window_size, x: x + window_size].sum()
 
             if percentile >= threshold:
                 label = 1
@@ -109,4 +109,5 @@ def crops2patches(window_size=32, threshold=0.5):
 
 if __name__ == '__main__':
     crops2patches()
+
 

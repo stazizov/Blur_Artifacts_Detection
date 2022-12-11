@@ -46,5 +46,4 @@ if __name__ == "__main__":
         v.draw_text(str(box[:2].numpy()), tuple(box[:2].numpy()))
     v = v.get_output()
     img =  v.get_image()[:, :, ::-1]
-    plt.imshow(img)
     cv2.imwrite(args.path2save, img)

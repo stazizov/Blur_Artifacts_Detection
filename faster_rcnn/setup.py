@@ -2,11 +2,11 @@ import os
 
 os.system("python -m pip install pyyaml==5.1")
 os.system("python -m pip install fvcore")
-import sys, os, distutils.core
+import os, distutils.core
 os.system("git clone 'https://github.com/facebookresearch/detectron2'")
+os.system("python -m pip install -e detectron2")
 dist = distutils.core.run_setup("./detectron2/setup.py")
 
-os.system("python -m pip install -e detectron2")
 
 import torch, detectron2
 

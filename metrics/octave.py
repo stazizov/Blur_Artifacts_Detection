@@ -56,4 +56,3 @@ def _simple_thinning(strength):
 
     return x | y
 
-

@@ -2,6 +2,8 @@ S1-v2
 wss1
 patches_*
 **.zip
+**.pth 
+**.pt 
 WSS1*
 patches
 **.png

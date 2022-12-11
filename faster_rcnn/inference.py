@@ -5,14 +5,11 @@ import sys
 import os
 import argparse
 
-sys.path.insert(0, os.path.abspath('./detectron2'))
-
 
 from detectron2.utils.logger import setup_logger
 setup_logger()
 
 # import some common libraries
-import numpy as np
 import os, cv2
 import matplotlib.pyplot as plt
 
@@ -50,4 +47,4 @@ if __name__ == "__main__":
     v = v.get_output()
     img =  v.get_image()[:, :, ::-1]
     plt.imshow(img)
-    cv2.imwrite(args.path2save)
+    cv2.imwrite(args.path2save, img)

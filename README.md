@@ -11,7 +11,7 @@ python -m pip install -r requirements.txt
 cd faster_rcnn
 git clone 'https://github.com/facebookresearch/detectron2
 python -m pip install -e detectron2
-python inference.py --path2image filename.png --path2save another_filename.png
+python inference.py --path2image filename.png --path2save another_filename.png --threshold 0.5
 ```
 
 ## YOLOv7

@@ -24,16 +24,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path2image", type=str)
     parser.add_argument("--path2save", type=str)
+    parser.add_argument("--threshold", type=float, default=0.25)
     args = parser.parse_args()
 
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_1x.yaml"))
     cfg.MODEL.WEIGHTS = "model_final.pth"  # path to the model we just trained
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.001  # set a custom testing threshold
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = args.threshold  # set a custom testing threshold
     cfg.MODEL.DEVICE='cpu'
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  
-    cfg.SOLVER.BASE_LR = 0.00025  
+    cfg.MODEL.IOU_THRESHOLD = 0.6
+    cfg.SOLVER.BASE_LR = args.threshold
     
     predictor = DefaultPredictor(cfg)
 

@@ -1,4 +1,5 @@
 catboost
+fvcore
 cpbd==1.0.7
 imageio==2.9.0
 matplotlib==3.2.2
@@ -13,4 +14,4 @@ skimage==0.0
 tqdm==4.64.1
 detectron2.egg==info
 torch==1.13.0+cu116
-
+pyyaml==5.1

@@ -30,9 +30,10 @@ if __name__ == "__main__":
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_1x.yaml"))
     cfg.MODEL.WEIGHTS = "model_final.pth"  # path to the model we just trained
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.001  # set a custom testing threshold
-    cfg.SOLVER.BASE_LR = 0.00025  
+    cfg.MODEL.DEVICE='cpu'
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  
+    cfg.SOLVER.BASE_LR = 0.00025  
     
     predictor = DefaultPredictor(cfg)
 
@@ -47,3 +48,4 @@ if __name__ == "__main__":
     v = v.get_output()
     img =  v.get_image()[:, :, ::-1]
     cv2.imwrite(args.path2save, img)
+    print("output saved at: ", args.path2save)

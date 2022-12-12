@@ -1,5 +1,5 @@
 import numpy as np
-from metrics import HistologicalTransforms
+# from metrics import HistologicalTransforms
 import torch
 from torch.utils import model_zoo
 from torch import nn
@@ -8,7 +8,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 import os
 import tqdm
-
+import torchvision
 
 @dataclass 
 class config:
@@ -40,7 +40,7 @@ class CPDBModel:
         the anchor in evaluating the threshold
         '''
         self.threshold = 0.5
-        self.metric = HistologicalTransforms().cpbd
+        # self.metric = HistologicalTransforms().cpbd
         self.percentile = percentile
 
     def fit(self, images):
@@ -294,7 +294,7 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_chans=3, filter_fn=
     model.load_state_dict(state_dict, strict=strict)
 
 
-def seresnet18(num_classes=1000, in_chans=3, pretrained=True, **kwargs):
+def seresnet18(num_classes=1000, in_chans=3, pretrained=False, **kwargs):
     cfg = default_cfg['seresnet18']
     model = SEReSNet(SEResNetBlock, [2, 2, 2, 2], groups=1, reduction=16,
                   inplanes=64,
@@ -305,6 +305,7 @@ def seresnet18(num_classes=1000, in_chans=3, pretrained=True, **kwargs):
         load_pretrained(model, cfg, num_classes, in_chans)
     
     model.reset_classifier(1)
+    model.load_state_dict(torch.load("weights/seresnet18.pt", map_location=torch.device("cpu")))
     return model
 
 
@@ -447,3 +448,19 @@ class Trainer:
         for epoch in range(self.num_epochs):
             self.train_epoch(epoch)
             self.test_epoch(epoch)
+
+
+def mobilenetv3():
+    model = torchvision.models.mobilenet_v3_small(weights=None)
+    model.classifier = torch.nn.Sequential(
+        torch.nn.Linear(in_features=576, out_features=128, bias=True),
+        torch.nn.Hardswish(),
+        torch.nn.Dropout(p=0.2, inplace=True),
+        torch.nn.Linear(in_features=128, out_features=1, bias=True)
+    )
+    model.load_state_dict(torch.load("weights/mobilenet_model.pth", map_location=torch.device('cpu')))
+    return model
+
+if __name__ == "__main__":
+    print(seresnet18())
+    print(mobilenetv3())

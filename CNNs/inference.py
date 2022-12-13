@@ -41,5 +41,4 @@ if __name__ == "__main__":
     image = cv2.imread(args.path2image)
     heatmap = inference(image, 224, model)
     combined = (image * heatmap).astype(np.uint8)
-    plt.imshow(combined)
-    plt.show()
+    cv2.imwrite(args.path2save, combined)

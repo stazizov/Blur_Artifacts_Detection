@@ -8,8 +8,8 @@ def sliding_window(image, stepSize, windowSize):
       
 if __name__ == '__main__':
 
-    image = cv2.imread("01.png")
-    window_size = 128
+    image = cv2.imread("05.png")
+    window_size = 448
 
     if not os.path.exists(f"patches_{window_size}"):
       os.mkdir(f"patches_{window_size}")

@@ -12,15 +12,15 @@ Detection of Blur Artifacts in Histopathological Whole-Slide Images of Endomyoca
 ### zoomed patch
 
 <p align="center" width="100%">
-    <img width="70%" src="src/patch_1_2.png">
+    <img width="70%" src="src/patch_1_2.jpeg">
 </p>
 
 <p align="center" width="100%">
-    <img width="70%" src="src/patch_1_2_heatmap.png">
+    <img width="70%" src="src/patch_1_2_heatmap.jpeg">
 </p>
 
 <p align="center" width="100%">
-    <img width="70%" src="src/mixed_patch_1_2.png">
+    <img width="70%" src="src/mixed_patch_1_2.jpeg">
 </p>
 
 

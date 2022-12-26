@@ -1,6 +1,29 @@
 # Blur Artifacts Detection 
 Detection of Blur Artifacts in Histopathological Whole-Slide Images of Endomyocardial Biopsies
 
+## Examples
+
+### full-size image
+<!-- ![Alt text](src/plot.jpeg?raw=true "plot") -->
+<p align="center" width="100%">
+    <img width="70%" src="src/plot.jpeg">
+</p>
+
+### zoomed patch
+
+<p align="center" width="100%">
+    <img width="70%" src="src/patch_1_2.png">
+</p>
+
+<p align="center" width="100%">
+    <img width="70%" src="src/patch_1_2_heatmap.png">
+</p>
+
+<p align="center" width="100%">
+    <img width="70%" src="src/mixed_patch_1_2.png">
+</p>
+
+
 ## install dependencies
 ```
 python -m pip install -r requirements.txt
